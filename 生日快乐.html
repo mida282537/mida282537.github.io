@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<!-- 微信卡片预览 -->
+<meta property="og:title" content="您有一条中秋祝福，请点击查看" />
+<meta property="og:description" content="月色寄相思，山海隔千里，中秋愿你无忧。" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://p3-flow-image-sign.byteimg.com/tos-cn-i-a9rns2rl98/xxx.jpg" />
+<meta property="og:url" content="https://你的网页地址.com/A359" />
+
+<title>中秋祝福</title>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    perspective: 1000px;
+  }
+
+  /* 封面层 */
+  .cover {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: opacity 0.8s ease;
+  }
+
+  .cover.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .cover-title {
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  .envelope {
+    width: 240px;
+    height: 140px;
+    background: linear-gradient(135deg, #fdfbfb, #f5f0e1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(255, 255, 255, 0.15);
+    animation: floatEnvelope 3s ease-in-out infinite;
+  }
+
+  .envelope::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(0,0,0,0.08), transparent);
+    clip-path: polygon(0 0, 50% 100%, 100% 0);
+  }
+
+  .heart {
+    width: 50px;
+    height: 50px;
+    background: #e63946;
+    transform: rotate(-45deg);
+    position: relative;
+    z-index: 2;
+    animation: beat 1.2s ease-in-out infinite;
+  }
+
+  .heart::before,
+  .heart::after {
+    content: "";
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: #e63946;
+    border-radius: 50%;
+  }
+
+  .heart::before {
+    top: -25px;
+    left: 0;
+  }
+
+  .heart::after {
+    top: 0;
+    left: 25px;
+  }
+
+  .cover-tip {
+    margin-top: 50px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    letter-spacing: 3px;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes floatEnvelope {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  @keyframes beat {
+    0%, 100% { transform: rotate(-45deg) scale(1); }
+    25% { transform: rotate(-45deg) scale(1.12); }
+    50% { transform: rotate(-45deg) scale(1); }
+    75% { transform: rotate(-45deg) scale(1.08); }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* 星空背景 */
+  .stars {
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 60% 70%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 80% 20%, #ffd 50%, transparent 51%),
+      radial-gradient(1px 1px at 40% 80%, #fff 50%, transparent 51%),
+      radial-gradient(1px 1px at 10% 60%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 90% 40%, #fff 50%, transparent 51%);
+    background-size: 100% 100%;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* 月亮 */
+  .moon {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff9c7, #f4e29a 60%, #d9be6a);
+    box-shadow:
+      0 0 60px rgba(255, 241, 180, 0.8),
+      0 0 120px rgba(255, 220, 120, 0.4);
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* 文字飘屏容器 */
+  .float-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    transform-style: preserve-3d;
+  }
+
+  /* 单个飘字 */
+  .float-text {
+    position: absolute;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #ffe9a8;
+    text-shadow:
+      0 0 8px rgba(255, 230, 150, 0.9),
+      0 0 20px rgba(255, 180, 80, 0.6),
+      0 0 40px rgba(255, 140, 60, 0.4);
+    will-change: transform, opacity;
+  }
+
+  /* 音乐按钮 */
+  .music-btn {
+    position: fixed;
+    right: 16px;
+    top: 16px;
+    z-index: 10;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 12px rgba(255, 220, 150, 0.5);
+  }
+
+  .music-btn.playing {
+    animation: rotate 8s linear infinite;
+  }
+
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- 封面层 -->
+<div class="cover" id="cover">
+  <div class="cover-title">🍬 您有一条中秋祝福，请点击查看 🍬</div>
+  <div class="envelope">
+    <div class="heart"></div>
+  </div>
+  <div class="cover-tip">点击开启祝福</div>
+</div>
+
+<!-- 飘屏主页面 -->
+<div class="stars"></div>
+<div class="moon"></div>
+<div class="float-layer" id="floatLayer"></div>
+
+<button class="music-btn" id="musicBtn">♪</button>
+
+<audio id="bgMusic" loop>
+  <source src="https://music.163.com/song/media/outer/url?id=139595.mp3" type="audio/mpeg" />
+</audio>
+
+<script>
+  const wordList = [
+    "中秋快乐",
+    "月色寄相思",
+    "山海隔千里",
+    "中秋愿你无忧",
+    "平安喜乐",
+    "万事顺意",
+    "岁岁团圆",
+    "I love you",
+    "一口月饼一口你",
+    "愿得年年中秋月",
+    "月圆人安",
+    "花好月圆"
+  ];
+
+  const cover = document.getElementById("cover");
+  const floatLayer = document.getElementById("floatLayer");
+  const musicBtn = document.getElementById("musicBtn");
+  const bgMusic = document.getElementById("bgMusic");
+
+  let musicOn = false;
+  let entered = false;
+
+  // 音乐按钮控制
+  musicBtn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    try {
+      if (!musicOn) {
+        bgMusic.volume = 0.6;
+        await bgMusic.play();
+        musicOn = true;
+        musicBtn.classList.add("playing");
+      } else {
+        bgMusic.pause();
+        musicOn = false;
+        musicBtn.classList.remove("playing");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  // 点击封面进入祝福页
+  cover.addEventListener("click", async function start() {
+    if (entered) return;
+    entered = true;
+
+    // 隐藏封面
+    cover.classList.add("hide");
+
+    // 开启音乐
+    try {
+      bgMusic.volume = 0.6;
+      await bgMusic.play();
+      musicOn = true;
+      musicBtn.classList.add("playing");
+    } catch (e) {
+      console.log("音乐播放失败：", e);
+    }
+
+    // 开始生成飘字
+    startFloatTexts();
+  });
+
+  // 创建单个飘字
+  function createFloatText() {
+    const text = document.createElement("div");
+    text.className = "float-text";
+    text.innerText = wordList[Math.floor(Math.random() * wordList.length)];
+
+    const size = 14 + Math.random() * 26;
+    text.style.fontSize = size + "px";
+
+    const fromLeft = Math.random() > 0.5;
+    const startX = fromLeft ? -200 : window.innerWidth + 200;
+    const endX = fromLeft ? window.innerWidth + 200 : -200;
+    const y = Math.random() * (window.innerHeight - 100) + 50;
+
+    text.style.left = startX + "px";
+    text.style.top = y + "px";
+
+    const startScale = 0.3 + Math.random() * 0.4;
+    const midScale = (startScale + (1.2 + Math.random() * 0.6)) / 2;
+    const endScale = 1.2 + Math.random() * 0.6;
+
+    const anim = text.animate([
+      {
+        transform: `translateX(0px) translateZ(-300px) scale(${startScale})`,
+        opacity: 0
+      },
+      {
+        transform: `translateX(${(endX - startX) / 2}px) translateZ(0px) scale(${midScale})`,
+        opacity: 0.85,
+        offset: 0.4
+      },
+      {
+        transform: `translateX(${endX - startX}px) translateZ(300px) scale(${endScale})`,
+        opacity: 0
+      }
+    ], {
+      duration: 5000 + Math.random() * 4000,
+      easing: "linear"
+    });
+
+    floatLayer.appendChild(text);
+    anim.onfinish = () => text.remove();
+  }
+
+  // 启动飘字
+  let timer = null;
+  function startFloatTexts() {
+    if (timer) return;
+    createFloatText();
+    timer = setInterval(createFloatText, 400);
+  }
+
+  // 窗口变化重排
+  window.addEventListener("resize", () => {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+    floatLayer.innerHTML = "";
+    if (entered) startFloatTexts();
+  });
+</script>
+
+</body>
+</html>
